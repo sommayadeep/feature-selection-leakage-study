@@ -179,7 +179,7 @@ Run the complete lightweight test suite:
 PYTHONPATH=src python -m unittest discover -s tests -p 'test_*.py'
 ```
 
-Expected result for the current project state: 18 tests pass.
+Expected result for the current project state: 21 tests pass.
 
 The same dependency installation, compilation, dependency check, and test
 suite run automatically on pushes and pull requests targeting `main` through
@@ -188,6 +188,37 @@ does not require or access the excluded leukemia dataset. CI validates the
 saved manifest's structure and the split-validation logic using synthetic
 labels; checking its class assignments against the restricted dataset remains
 an authorized local-data validation step.
+
+## Results visualizations
+
+The maintained plotting script creates three figures from compatible,
+already-saved result tables:
+
+- [`leakage_comparison.png`](reports/figures/leakage_comparison.png) shows
+  leaky-minus-safe Macro-F1 and balanced-accuracy differences from
+  `results/tables/phase7_paired_differences.csv`.
+- [`model_comparison.png`](reports/figures/model_comparison.png) shows safe
+  k-NN-minus-ID3 differences on the same 15 paired outer folds from
+  `results/tables/phase7_model_comparison.csv`.
+- [`feature_stability.png`](reports/figures/feature_stability.png) shows
+  mean pairwise Jaccard similarity and the reported standard deviation from
+  `results/tables/feature_stability.csv`.
+
+Regenerate them without the restricted dataset:
+
+```bash
+PYTHONPATH=src python src/plot_research_results.py --overwrite
+```
+
+The plotting script validates schemas, missing values, metric ranges, fold
+counts, and arithmetic consistency before plotting. Its intervals for the
+Phase 7 figures are descriptive percentile bootstrap summaries, not
+inferential confidence intervals. The historical 3-fold × 2-repeat
+`leakage_comparison.csv` and the nested-CV `nested_cv_results.csv` use
+different protocols and are not combined with the shared 3-fold × 5-repeat
+figures. The Phase 7 selector-comparison table is retained as a validated
+result but is not plotted here because the three selected figures cover the
+supported primary comparisons.
 
 To regenerate the Phase 7 tables and figures after placing an authorized
 dataset locally and confirming the saved source result hashes:
