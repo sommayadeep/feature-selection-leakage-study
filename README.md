@@ -1,170 +1,247 @@
-Leakage-Safe Feature Selection for ID3 and k-NN: Measuring Performance Inflation and Feature Stability on High-Dimensional Genomic Data
+# Leakage-Safe Feature Selection for ID3 and k-NN
+
+Measuring performance inflation and feature-selection stability on a
+high-dimensional leukemia expression matrix.
+
+## Status
+
+**Research implementation and verified analysis artifacts. Not ready for
+unrestricted manuscript submission.**
+
+The project contains a completed, reproducible shared 3-fold x 5-repeat
+comparison of safe and deliberately leaky feature selection for a custom
+ID3-style classifier and fixed-configuration k-NN. The current evidence is a
+descriptive methodological demonstration on one 72-sample dataset. It does
+not establish biological significance, clinical utility, statistical
+significance, external validity, or universal classifier/selector superiority.
+
+The exact data-use and redistribution terms for the transformed Stanford
+mirror remain unresolved. The dataset is therefore excluded from this
+repository. See [`data/README.md`](data/README.md) and the
+[Phase 9A provenance report](reports/phase9a_dataset_provenance.md).
+
+## Abstract
+
+Feature selection performed before cross-validation can expose held-out
+labels to the feature-selection step and inflate observed evaluation scores.
+This project compares a leakage-safe pipeline, where selection is fitted on
+each training fold only, with a deliberately leaky diagnostic control, where
+held-out labels are supplied only to feature selection. The comparison uses
+ANOVA F-test and mutual-information selection with a custom ID3-style tree and
+fixed `k=3` k-NN on a 72-sample, 7,128-feature leukemia expression matrix.
+
+The study is designed to quantify protocol-local changes in Macro-F1 and
+balanced accuracy and to keep safe/leaky comparisons paired on identical
+outer folds. The intentionally leaky condition is a methodological control,
+not a valid deployment or model-evaluation procedure.
 
-Research Area: Machine Learning · Feature Selection · Data Leakage · High-Dimensional Classification
+## Research objectives
+
+- Demonstrate the information boundary required for leakage-safe feature
+  selection.
+- Quantify descriptive score changes caused by deliberately exposing held-out
+  labels to ANOVA or mutual-information selection.
+- Compare the observed patterns for the implemented ID3-style and k-NN
+  classifiers on identical outer splits.
+- Preserve selected-feature and prediction artifacts for independent checks.
+- Document the limits imposed by the small sample, unresolved data provenance,
+  and synthetic feature identifiers.
+
+## Implemented methodology
+
+### Dataset
+
+The local dataset contains 72 observations, 7,128 numeric features, and two
+classes: 47 ALL and 25 AML. The raw matrix is an exact byte-level match to
+the Stanford CASI `leukemia_big.csv` mirror. The local preparation script
+transposes the matrix, generates positional names `gene_0001` through
+`gene_7128`, and appends the target label.
+
+These names are not verified biological identifiers. The upstream
+transformation history is documented as lost by the Stanford source, and no
+sample, batch, or patient metadata are available in the project. The source
+dataset is not redistributed here; access requirements are documented in
+[`data/README.md`](data/README.md).
+
+### Feature selection
+
+- **ANOVA F-test:** scikit-learn `SelectKBest(f_classif, k=50)`.
+- **Mutual information:** scikit-learn `SelectKBest` using
+  `mutual_info_classif(random_state=42)`, with `k=50`.
+
+### Classifiers
 
-Project Type: Reproducible Research
+- **ID3-style classifier:** custom information-gain tree with three
+  quantile-discretization bins, maximum depth 5, and minimum split size 4.
+- **k-NN:** scikit-learn `KNeighborsClassifier(n_neighbors=3)`.
 
-⸻
+### Leakage-safe condition
 
-Abstract
+For each outer fold, imputation and any scaling are fitted on training
+observations only. Feature selection receives training observations and
+training labels only. ID3 discretization is fitted on selected training
+features only. The classifier is fitted on training observations and
+evaluated on the held-out fold.
 
-Feature selection is an important step in machine learning, particularly when classification problems involve a large number of features and relatively few samples. However, performing feature selection before cross-validation can introduce data leakage, allowing information from evaluation samples to influence the selected features and potentially inflate reported predictive performance.
+### Deliberately leaky condition
 
-This research investigates the impact of feature-selection data leakage on classification performance by comparing leakage-safe and intentionally leaky evaluation pipelines. The experimental framework considers ID3-style decision trees and k-nearest neighbors (k-NN), with feature-selection methods such as the ANOVA F-test and Mutual Information.
+Imputation and scaling remain training-fitted. Feature selection receives all
+transformed observations and all labels, including held-out labels, solely to
+simulate feature-selection leakage. The classifier is still fitted only on
+training observations. This condition is explicitly diagnostic and must not be
+reported as a valid generalization estimate.
 
-The study aims to examine differences in predictive performance between the evaluation pipelines and investigate feature-selection stability where supported by the experimental methodology. The implementation is intended to support transparent experimentation and reproducible evaluation in high-dimensional classification settings.
+### Cross-validation and metrics
 
-Note: The abstract describes the research objective and methodology. Specific findings will be reported after the experimental results have been verified.
+The final shared protocol uses the canonical manifest in
+[`configs/outer_fold_manifest.csv`](configs/outer_fold_manifest.csv):
 
-⸻
+- stratified 3-fold cross-validation;
+- 5 repeats;
+- 15 matched outer folds;
+- 48 training and 24 test observations per fold;
+- each patient appears in a test fold five times;
+- identical folds for ID3 and k-NN.
 
-1. Research Motivation
+Primary metrics are Macro-F1 and balanced accuracy. Phase 7 reports
+leaky-minus-safe paired differences, safe k-NN minus safe ID3 differences, and
+MI-minus-ANOVA leakage contrasts. Its percentile bootstrap intervals are
+descriptive sensitivity summaries, not inferential confidence intervals,
+because repeated-CV folds are dependent.
 
-In machine learning, feature selection identifies the variables most relevant to a prediction task. When the number of features is very large relative to the number of available samples, selecting informative features becomes particularly important.
+## Verified results
 
-A potential methodological problem arises when feature selection is performed on the entire dataset before splitting the data into training and evaluation folds. Information from evaluation samples can influence feature selection, resulting in an overly optimistic estimate of model performance.
+The final shared Phase 7 summaries were regenerated byte-for-byte from the
+saved Phase 6-corrected k-NN and shared ID3 result rows by
+[`src/analyze_phase7_results.py`](src/analyze_phase7_results.py).
 
-This project investigates the effect of that methodological error and demonstrates why feature selection should be incorporated correctly into the model evaluation pipeline.
+Mean leaky-minus-safe differences:
 
-⸻
+| Classifier | Selector | Macro-F1 | Balanced accuracy |
+|---|---|---:|---:|
+| ID3 | ANOVA | +0.009097 | +0.008333 |
+| ID3 | Mutual information | +0.028769 | +0.027315 |
+| k-NN | ANOVA | +0.005878 | +0.003843 |
+| k-NN | Mutual information | +0.021462 | +0.021528 |
 
-2. Research Objectives
+These are descriptive results from one dataset and one fixed protocol. They
+must not be presented as causal population estimates or statistical
+significance findings.
 
-The objectives of this study are:
+The safe-condition model comparison is also descriptive: k-NN has higher
+mean scores than ID3 on the matched folds for both selectors, but this does
+not establish general classifier superiority.
 
-* To compare leakage-safe and intentionally leaky feature-selection pipelines.
-* To investigate how feature-selection leakage affects classification performance.
-* To evaluate ID3-style decision trees and k-nearest neighbors (k-NN).
-* To examine the behavior of ANOVA F-test and Mutual Information feature selection.
-* To investigate feature-selection stability, if supported by the implemented experiments.
-* To provide a reproducible experimental framework for studying data leakage in high-dimensional classification.
+See:
 
-⸻
+- [`reports/phase7_final_comparative_analysis.md`](reports/phase7_final_comparative_analysis.md)
+- [`reports/phase8_scientific_audit.md`](reports/phase8_scientific_audit.md)
+- [`reports/phase10_publication_readiness.md`](reports/phase10_publication_readiness.md)
 
-3. Methodology
+## Repository structure
 
-The experimental framework is designed around two evaluation approaches.
+```text
+configs/       Shared experiment configuration and canonical outer-fold manifest
+data/          Access instructions only; raw and processed data excluded
+reports/       Audits, phase reports, reproducibility manifest, and figures
+results/       Saved result tables and verified analysis figures
+src/           Experiment runners, diagnostics, and analysis utilities
+tests/         Lightweight implementation and analysis tests
+```
 
-3.1 Leakage-Safe Feature Selection
+Historical protocols and outputs are retained where useful, but they are not
+silently combined. In particular, the historical 3x2 k-NN, nested-CV,
+20-resample stability, matched ID3 overlap, and shared 3x5 outputs represent
+different protocols.
 
-Feature selection is fitted exclusively on the training portion of each cross-validation fold. The selected features are then used to train the classifier and evaluate its performance on the corresponding held-out fold.
+## Installation
 
-This approach prevents the held-out fold from influencing feature selection.
+The committed requirements were tested with CPython 3.12.13:
 
-3.2 Intentionally Leaky Feature Selection
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+```
 
-Feature selection is performed before cross-validation using information from the full dataset. The selected features are subsequently used in the cross-validation experiments.
+The source modules are imported through `PYTHONPATH=src`:
 
-This approach serves as a methodological control to investigate how using evaluation-set information during feature selection can affect reported performance. It is not a recommended model-evaluation procedure.
+```bash
+export PYTHONPATH=src
+```
 
-3.3 Feature-Selection Methods
+## Tests and analysis reproduction
 
-The study considers the following methods, subject to the final implementation:
+Run the complete lightweight test suite:
 
-* ANOVA F-test: Evaluates feature relevance using an analysis-of-variance statistic.
-* Mutual Information: Estimates the statistical dependence between individual features and the target variable.
+```bash
+PYTHONPATH=src python -m unittest discover -s tests -p 'test_*.py'
+```
 
-3.4 Classification Algorithms
+Expected result for the current project state: 18 tests pass.
 
-* ID3-style Decision Tree: A decision-tree classifier based on information gain, as implemented in this project.
-* k-Nearest Neighbors (k-NN): An instance-based classification algorithm that predicts a class using nearby training samples.
+To regenerate the Phase 7 tables and figures after placing an authorized
+dataset locally and confirming the saved source result hashes:
 
-The implementation details, hyperparameters, and preprocessing procedures will be documented alongside the experimental code.
+```bash
+PYTHONPATH=src python src/analyze_phase7_results.py \
+  --overwrite \
+  --manifest-output reports/phase9b_reproducibility_manifest.json
+```
 
-⸻
+The script refuses to use a superseded k-NN result file, validates the shared
+fold contract, records hashes and package versions, and preserves the
+documented 20,000-resample bootstrap settings. Do not overwrite existing
+artifacts without a backup.
 
-4. Experimental Evaluation
+The full experiments are not required to reproduce the Phase 7 analysis.
+If authorized data and a new experiment run are explicitly approved, use
+distinct output stems:
 
-The experiments are designed to compare the two feature-selection pipelines across the implemented feature-selection methods and classifiers.
+```bash
+PYTHONPATH=src python src/run_id3_experiment.py \
+  --output-stem shared_3x5_id3_reproduction
 
-Evaluation may include:
+PYTHONPATH=src python src/compare_leakage.py \
+  --output-stem shared_3x5_knn_reproduction
+```
 
-* Accuracy
-* Precision
-* Recall
-* F1-score
-* Variation in performance across repeated evaluations
-* Feature-selection stability, if implemented
+These commands are computational experiments and should not be run
+implicitly. The existing result artifacts are preserved in `results/tables/`.
 
-The final report will contain the actual experimental results, including appropriate summary statistics and visualizations.
+## Reproducibility records
 
-No numerical findings are asserted in this README until they have been verified against the experimental outputs.
+- [`configs/shared_experiment_config.json`](configs/shared_experiment_config.json)
+- [`configs/outer_fold_manifest.csv`](configs/outer_fold_manifest.csv)
+- [`reports/phase9b_reproducibility_manifest.json`](reports/phase9b_reproducibility_manifest.json)
+- [`reports/phase9b_reproducibility_report.md`](reports/phase9b_reproducibility_report.md)
+- [`reports/completion_checklist.md`](reports/completion_checklist.md)
 
-⸻
+The Phase 9B manifest records the exact Python command, Python and package
+versions, input hashes, output hashes, random seed, and bootstrap count.
 
-5. Repository Structure
+## Limitations and publication status
 
-The repository will contain the implementation and supporting research materials.
+- Only one small dataset is available; no external validation cohort exists.
+- Repeated-CV folds reuse patients and are dependent.
+- The exact transformed-data license, upstream feature mapping, and sample
+  metadata are unresolved.
+- Synthetic positional feature names do not support biological interpretation.
+- The leaky pipeline is a diagnostic control, not a valid evaluation method.
+- Current uncertainty intervals are descriptive, not significance tests.
 
-feature-selection-leakage-study/
-├── README.md
-├── requirements.txt
-├── .gitignore
-├── src/
-├── experiments/
-├── notebooks/
-├── results/
-└── docs/
+The Phase 10 publication-readiness decision is **not ready for unrestricted
+manuscript drafting**. A restricted methodological paper may be considered
+only after data-use terms or target-venue acceptance are documented.
 
-The final directory structure will reflect the actual files included in the repository.
+## Citation
 
-⸻
+There is no published paper or verified conference acceptance associated with
+this repository. Until a formal citation is available, cite the repository
+and the data source described in the provenance report. The underlying study
+citation recorded by the source is:
 
-6. Reproducibility
-
-The project aims to make its experiments reproducible by documenting:
-
-* Software dependencies and versions
-* Dataset provenance and access instructions
-* Preprocessing procedures
-* Feature-selection settings
-* Classifier configurations
-* Cross-validation strategy
-* Random seeds, where applicable
-* Experimental commands and evaluation metrics
-
-Reproduction instructions will be added after the execution scripts and environment configuration have been finalized.
-
-⸻
-
-7. Dataset and Data Usage
-
-Dataset provenance, access conditions, and applicable usage terms must be established before the dataset is redistributed or used in a public demonstration.
-
-This repository will document the dataset source and provide appropriate access instructions when those details have been verified.
-
-The repository will not redistribute data without the necessary authorization.
-
-⸻
-
-8. Research Limitations
-
-The conclusions of this study must be interpreted in the context of the datasets, algorithms, preprocessing procedures, and validation strategies actually evaluated.
-
-Experiments on a limited number of datasets do not establish that the same performance effects will occur in every machine-learning setting.
-
-The distinction between leakage-safe and intentionally leaky feature selection is intended to demonstrate a methodological issue, not to suggest that the leaky procedure is appropriate for real-world evaluation.
-
-⸻
-
-9. Research Status
-
-This repository documents the implementation and experimental investigation associated with the research project.
-
-Experimental results, reproducibility instructions, and supporting research materials will be added or updated as they are verified.
-
-⸻
-
-10. Citation
-
-If you use or discuss this implementation, please cite the repository and the associated research work when a formal citation becomes available.
-
-The final citation information will be provided after the authorship details and publication status have been established.
-
-⸻
-
-11. Contact and Collaboration
-
-Researchers and students interested in feature selection, machine-learning evaluation, and reproducible experimentation are welcome to explore the project and discuss its methodology.
-
-For questions, suggestions, or research collaboration, please use the repository’s GitHub Issues or Discussions features when available.
+> Golub, T. R. et al. (1999). Molecular classification of cancer: class
+> discovery and class prediction by gene expression monitoring. *Science*,
+> 286(5439), 531–537. DOI:
+> <https://doi.org/10.1126/science.286.5439.531>.

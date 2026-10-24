@@ -1,0 +1,9 @@
+dataset,model,selector,selection_mode,repeat,fold,global_fold,true_negative,false_positive,false_negative,true_positive
+Leukemia,k-NN,anova,safe,1,1,1,16,0,0,8
+Leukemia,k-NN,anova,leaky,1,1,1,16,0,0,8
+Leukemia,k-NN,anova,safe,1,2,2,15,1,0,8
+Leukemia,k-NN,anova,leaky,1,2,2,15,1,0,8
+Leukemia,k-NN,mutual_information,safe,1,1,1,16,0,0,8
+Leukemia,k-NN,mutual_information,leaky,1,1,1,16,0,0,8
+Leukemia,k-NN,mutual_information,safe,1,2,2,15,1,0,8
+Leukemia,k-NN,mutual_information,leaky,1,2,2,16,0,0,8

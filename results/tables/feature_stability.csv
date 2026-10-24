@@ -1,0 +1,3 @@
+selector,repeats,features_per_repeat,number_of_pairs,mean_jaccard,std_jaccard
+anova,20,100,190,0.5389716414854939,0.05048367805024105
+mutual_information,20,100,190,0.4145111326672905,0.043032379274775684

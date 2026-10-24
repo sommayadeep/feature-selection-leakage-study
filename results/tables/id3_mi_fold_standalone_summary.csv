@@ -1,0 +1,3 @@
+selector,selection_mode,repeat,fold,macro_f1,balanced_accuracy,genes_match,f1_matches,balanced_matches
+MI,safe,3,2,0.7333333333333334,0.75,True,True,True
+MI,leaky,3,2,0.9111111111111111,0.9375,True,True,True

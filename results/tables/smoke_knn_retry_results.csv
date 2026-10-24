@@ -1,0 +1,5 @@
+dataset,model,selector,selection_mode,repeat,fold,global_fold,n_train,n_test,features_selected,macro_f1,balanced_accuracy,fit_predict_seconds
+Leukemia,k-NN,anova,safe,1,1,1,48,24,50,1.0,1.0,0.031038040993735194
+Leukemia,k-NN,anova,leaky,1,1,1,48,24,50,1.0,1.0,0.002029207971645519
+Leukemia,k-NN,mutual_information,safe,1,1,1,48,24,50,1.0,1.0,3.074184459022945
+Leukemia,k-NN,mutual_information,leaky,1,1,1,48,24,50,1.0,1.0,0.002060583996353671

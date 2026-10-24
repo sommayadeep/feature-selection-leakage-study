@@ -1,0 +1,9 @@
+dataset,selector,selection_mode,repeat,fold,global_fold,true_negative,false_positive,false_negative,true_positive
+Leukemia,ANOVA,safe,1,1,1,16,0,1,7
+Leukemia,ANOVA,leaky,1,1,1,16,0,1,7
+Leukemia,MI,safe,1,1,1,16,0,1,7
+Leukemia,MI,leaky,1,1,1,16,0,1,7
+Leukemia,ANOVA,safe,1,2,2,13,3,0,8
+Leukemia,ANOVA,leaky,1,2,2,13,3,0,8
+Leukemia,MI,safe,1,2,2,13,3,0,8
+Leukemia,MI,leaky,1,2,2,13,3,0,8

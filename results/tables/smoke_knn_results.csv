@@ -1,0 +1,9 @@
+dataset,model,selector,selection_mode,repeat,fold,global_fold,n_train,n_test,features_selected,macro_f1,balanced_accuracy,fit_predict_seconds
+Leukemia,k-NN,anova,safe,1,1,1,48,24,50,1.0,1.0,0.06887883399031125
+Leukemia,k-NN,anova,leaky,1,1,1,48,24,50,1.0,1.0,0.0022015410067979246
+Leukemia,k-NN,anova,safe,1,2,2,48,24,50,0.9544592030360531,0.96875,0.01579795900033787
+Leukemia,k-NN,anova,leaky,1,2,2,48,24,50,0.9544592030360531,0.96875,0.0016868750099092722
+Leukemia,k-NN,mutual_information,safe,1,1,1,48,24,50,1.0,1.0,3.1414202080050018
+Leukemia,k-NN,mutual_information,leaky,1,1,1,48,24,50,1.0,1.0,0.0019514159939717501
+Leukemia,k-NN,mutual_information,safe,1,2,2,48,24,50,0.9544592030360531,0.96875,3.1329264160012826
+Leukemia,k-NN,mutual_information,leaky,1,2,2,48,24,50,1.0,1.0,0.001981749985134229

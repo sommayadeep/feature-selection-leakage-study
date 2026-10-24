@@ -1,0 +1,5 @@
+selector,selection_mode,folds,macro_f1_mean,macro_f1_std,balanced_accuracy_mean,balanced_accuracy_std
+anova,leaky,1,1.0,,1.0,
+anova,safe,1,1.0,,1.0,
+mutual_information,leaky,1,1.0,,1.0,
+mutual_information,safe,1,1.0,,1.0,

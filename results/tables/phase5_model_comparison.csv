@@ -1,0 +1,5 @@
+classifier,selector,protocol,analysis_status,safe_macro_f1_mean,safe_macro_f1_std,safe_balanced_accuracy_mean,safe_balanced_accuracy_std,note
+Custom ID3-style,ANOVA,"shared 3-fold x 5-repeat manifest, 50 features, fixed ID3 settings",verified,0.8710694195154841,0.0476065454800339,0.8897685185185186,0.0390545884110345,Descriptive comparison only; repeated folds are dependent.
+Custom ID3-style,MI,"shared 3-fold x 5-repeat manifest, 50 features, fixed ID3 settings",verified,0.8626348433389724,0.06593578537893,0.879675925925926,0.0579508831463059,Descriptive comparison only; repeated folds are dependent.
+k-NN,anova,"shared 3-fold x 5-repeat manifest, 50 features, fixed k=3",blocked_source_artifact_discrepancy,,,,,Saved k-NN outputs inspected but not used for verified paired/model comparison: leaky path applies a second scaler after selection.
+k-NN,mutual_information,"shared 3-fold x 5-repeat manifest, 50 features, fixed k=3",blocked_source_artifact_discrepancy,,,,,Saved k-NN outputs inspected but not used for verified paired/model comparison: leaky path applies a second scaler after selection.

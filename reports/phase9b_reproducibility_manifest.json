@@ -1,0 +1,82 @@
+{
+  "command": [
+    "/Volumes/T7 Shield/Research/leakage-safe-feature-selection/.venv/bin/python",
+    "src/analyze_phase7_results.py",
+    "--overwrite",
+    "--manifest-output",
+    "reports/phase9b_reproducibility_manifest.json"
+  ],
+  "python": "3.12.13 (main, Mar  3 2026, 12:39:30) [Clang 21.0.0 (clang-2100.0.123.102)]",
+  "python_implementation": "CPython",
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "package_versions": {
+    "numpy": "2.5.4",
+    "pandas": "3.0.6",
+    "matplotlib": "3.11.2",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.18.1"
+  },
+  "bootstrap_seed": 20261024,
+  "bootstrap_resamples": 20000,
+  "interval_note": "Descriptive percentile bootstrap over paired fold rows; repeated-CV dependence prevents inferential interpretation.",
+  "inputs": [
+    {
+      "path": "/Volumes/T7 Shield/Research/leakage-safe-feature-selection/results/tables/shared_3x5_id3_results.csv",
+      "sha256": "913f46ba1f0d894a4a315aff0df286501290c671ef8d37b93c73400707472d99"
+    },
+    {
+      "path": "/Volumes/T7 Shield/Research/leakage-safe-feature-selection/results/tables/shared_3x5_id3_summary.csv",
+      "sha256": "1b34f6182cd85349a604e6096aa5e0ad9e7da1a92ebfb1d1432417f42e93b7cc"
+    },
+    {
+      "path": "/Volumes/T7 Shield/Research/leakage-safe-feature-selection/results/tables/shared_3x5_knn_phase6_corrected_results.csv",
+      "sha256": "ed9fb8ec4c8c8109312e4c83902343109cbaa6131f059e885bbfd17fd62a591a"
+    },
+    {
+      "path": "/Volumes/T7 Shield/Research/leakage-safe-feature-selection/results/tables/shared_3x5_knn_phase6_corrected_summary.csv",
+      "sha256": "ab325c12dc7e109a99b263accf10db5aecfe75e757077e52fe6291104bd39a8f"
+    },
+    {
+      "path": "/Volumes/T7 Shield/Research/leakage-safe-feature-selection/configs/outer_fold_manifest.csv",
+      "sha256": "6d08d23870b3e989bef134a9db3308d27b4d60036087ddb7ffce3c2ee59427fc"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "/Volumes/T7 Shield/Research/leakage-safe-feature-selection/results/tables/phase7_paired_differences.csv",
+      "sha256": "0efb7638c793c891c06eb27de399e9de01747dfb9cb726bee89cf884d6bc2b53"
+    },
+    {
+      "path": "/Volumes/T7 Shield/Research/leakage-safe-feature-selection/results/tables/phase7_paired_differences_summary.csv",
+      "sha256": "bf88cb7f48d97e3b41f308fb74f9938a8574433b8745126157584276115e27b9"
+    },
+    {
+      "path": "/Volumes/T7 Shield/Research/leakage-safe-feature-selection/results/tables/phase7_model_comparison.csv",
+      "sha256": "d18c3cd754c58abefff00aed31a9ec47b012c99fdbd1ee1a5ea10b0fa070ddb5"
+    },
+    {
+      "path": "/Volumes/T7 Shield/Research/leakage-safe-feature-selection/results/tables/phase7_model_comparison_summary.csv",
+      "sha256": "b71c4208efd3136de2bdca3a8351a9509a7e562e816338406bcc7e67fc8ec4f8"
+    },
+    {
+      "path": "/Volumes/T7 Shield/Research/leakage-safe-feature-selection/results/tables/phase7_selector_comparison.csv",
+      "sha256": "ed8e979e3ebac5df97e7f7b1d925a7bd285933d41c2cf3fd46316811412692f6"
+    },
+    {
+      "path": "/Volumes/T7 Shield/Research/leakage-safe-feature-selection/results/tables/phase7_selector_comparison_summary.csv",
+      "sha256": "2d05b47a87f5621d07bd61919fd3b32ae339c8eee6ee71435361303505a4a2be"
+    },
+    {
+      "path": "/Volumes/T7 Shield/Research/leakage-safe-feature-selection/reports/figures/phase7_safe_leaky_performance.png",
+      "sha256": "eca97dc59ffacd09cb22e182dfff29ac16c7955137055eae7f1322196d3b4cfc"
+    },
+    {
+      "path": "/Volumes/T7 Shield/Research/leakage-safe-feature-selection/reports/figures/phase7_fold_leakage_differences.png",
+      "sha256": "f1b176eff4287ffc4816c24710b43a43e45770ca507f021ccd297559632d232b"
+    },
+    {
+      "path": "/Volumes/T7 Shield/Research/leakage-safe-feature-selection/reports/figures/phase7_safe_classifier_differences.png",
+      "sha256": "c8657ffc9801a2a93184366ba54defd24570e5b35db3578fe39d6a9a4c872fd8"
+    }
+  ]
+}

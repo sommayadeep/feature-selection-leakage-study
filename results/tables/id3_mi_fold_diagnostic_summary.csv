@@ -1,0 +1,3 @@
+selector,selection_mode,repeat,fold,macro_f1_reproduced,macro_f1_saved,balanced_accuracy,accuracy,score_matches
+MI,safe,3,2,0.49650349650349646,0.7333333333333334,0.53125,0.5,False
+MI,leaky,3,2,0.7037037037037037,0.9111111111111112,0.75,0.7083333333333334,False

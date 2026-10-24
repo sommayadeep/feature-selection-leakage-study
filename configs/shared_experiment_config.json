@@ -1,0 +1,11 @@
+{
+  "seed": 42,
+  "outer_splits": 3,
+  "outer_repeats": 5,
+  "selected_features": 50,
+  "discretization_bins": 3,
+  "id3_max_depth": 5,
+  "id3_min_samples_split": 4,
+  "knn_neighbors": 3,
+  "status": "integrated shared protocol for comparable future runners; legacy outputs remain separate"
+}

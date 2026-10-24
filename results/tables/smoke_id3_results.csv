@@ -1,0 +1,9 @@
+dataset,classifier,selector,selection_mode,repeat,fold,global_fold,features_selected,n_train,n_test,macro_f1,balanced_accuracy
+Leukemia,Custom ID3-style,ANOVA,safe,1,1,1,50,48,24,0.9515151515151515,0.9375
+Leukemia,Custom ID3-style,ANOVA,leaky,1,1,1,50,48,24,0.9515151515151515,0.9375
+Leukemia,Custom ID3-style,MI,safe,1,1,1,50,48,24,0.9515151515151515,0.9375
+Leukemia,Custom ID3-style,MI,leaky,1,1,1,50,48,24,0.9515151515151515,0.9375
+Leukemia,Custom ID3-style,ANOVA,safe,1,2,2,50,48,24,0.8693284936479129,0.90625
+Leukemia,Custom ID3-style,ANOVA,leaky,1,2,2,50,48,24,0.8693284936479129,0.90625
+Leukemia,Custom ID3-style,MI,safe,1,2,2,50,48,24,0.8693284936479129,0.90625
+Leukemia,Custom ID3-style,MI,leaky,1,2,2,50,48,24,0.8693284936479129,0.90625

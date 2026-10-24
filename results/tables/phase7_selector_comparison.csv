@@ -1,0 +1,61 @@
+classifier,repeat,fold,global_fold,metric,anova_leakage_difference,mi_leakage_difference,mi_minus_anova,difference_definition,bootstrap_95_percentile_low,bootstrap_95_percentile_high
+ID3,1,1,1,Balanced accuracy,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006622685185185189,0.050509259259259275
+ID3,1,2,2,Balanced accuracy,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006622685185185189,0.050509259259259275
+ID3,1,3,3,Balanced accuracy,0.0,0.05555555555555558,0.05555555555555558,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006622685185185189,0.050509259259259275
+ID3,2,1,4,Balanced accuracy,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006622685185185189,0.050509259259259275
+ID3,2,2,5,Balanced accuracy,0.0625,0.0,-0.0625,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006622685185185189,0.050509259259259275
+ID3,2,3,6,Balanced accuracy,0.0,0.06666666666666676,0.06666666666666676,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006622685185185189,0.050509259259259275
+ID3,3,1,7,Balanced accuracy,0.03125,0.0,-0.03125,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006622685185185189,0.050509259259259275
+ID3,3,2,8,Balanced accuracy,0.0,0.1875,0.1875,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006622685185185189,0.050509259259259275
+ID3,3,3,9,Balanced accuracy,0.0,0.033333333333333215,0.033333333333333215,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006622685185185189,0.050509259259259275
+ID3,4,1,10,Balanced accuracy,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006622685185185189,0.050509259259259275
+ID3,4,2,11,Balanced accuracy,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006622685185185189,0.050509259259259275
+ID3,4,3,12,Balanced accuracy,0.0,0.06666666666666676,0.06666666666666676,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006622685185185189,0.050509259259259275
+ID3,5,1,13,Balanced accuracy,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006622685185185189,0.050509259259259275
+ID3,5,2,14,Balanced accuracy,0.03125,0.0,-0.03125,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006622685185185189,0.050509259259259275
+ID3,5,3,15,Balanced accuracy,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006622685185185189,0.050509259259259275
+ID3,1,1,1,Macro-F1,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006853209816805454,0.05156428142643303
+ID3,1,2,2,Macro-F1,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006853209816805454,0.05156428142643303
+ID3,1,3,3,Macro-F1,0.0,0.04444444444444451,0.04444444444444451,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006853209816805454,0.05156428142643303
+ID3,2,1,4,Macro-F1,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006853209816805454,0.05156428142643303
+ID3,2,2,5,Macro-F1,0.052355487649605514,0.0,-0.052355487649605514,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006853209816805454,0.05156428142643303
+ID3,2,3,6,Macro-F1,0.0,0.08253968253968269,0.08253968253968269,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006853209816805454,0.05156428142643303
+ID3,3,1,7,Macro-F1,0.043348091924942045,0.0,-0.043348091924942045,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006853209816805454,0.05156428142643303
+ID3,3,2,8,Macro-F1,0.0,0.1777777777777778,0.1777777777777778,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006853209816805454,0.05156428142643303
+ID3,3,3,9,Macro-F1,0.0,0.043348091924942045,0.043348091924942045,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006853209816805454,0.05156428142643303
+ID3,4,1,10,Macro-F1,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006853209816805454,0.05156428142643303
+ID3,4,2,11,Macro-F1,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006853209816805454,0.05156428142643303
+ID3,4,3,12,Macro-F1,0.0,0.08342695820009793,0.08342695820009793,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006853209816805454,0.05156428142643303
+ID3,5,1,13,Macro-F1,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006853209816805454,0.05156428142643303
+ID3,5,2,14,Macro-F1,0.040757065076484356,0.0,-0.040757065076484356,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006853209816805454,0.05156428142643303
+ID3,5,3,15,Macro-F1,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.006853209816805454,0.05156428142643303
+k-NN,1,1,1,Balanced accuracy,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.009954861111111112,0.04606481481481482
+k-NN,1,2,2,Balanced accuracy,0.0,0.03125,0.03125,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.009954861111111112,0.04606481481481482
+k-NN,1,3,3,Balanced accuracy,0.033333333333333215,0.05555555555555558,0.022222222222222365,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.009954861111111112,0.04606481481481482
+k-NN,2,1,4,Balanced accuracy,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.009954861111111112,0.04606481481481482
+k-NN,2,2,5,Balanced accuracy,0.0625,0.0,-0.0625,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.009954861111111112,0.04606481481481482
+k-NN,2,3,6,Balanced accuracy,0.05555555555555558,0.05555555555555558,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.009954861111111112,0.04606481481481482
+k-NN,3,1,7,Balanced accuracy,-0.0625,0.0625,0.125,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.009954861111111112,0.04606481481481482
+k-NN,3,2,8,Balanced accuracy,0.0,0.03125,0.03125,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.009954861111111112,0.04606481481481482
+k-NN,3,3,9,Balanced accuracy,0.05555555555555558,0.0,-0.05555555555555558,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.009954861111111112,0.04606481481481482
+k-NN,4,1,10,Balanced accuracy,0.0625,0.0,-0.0625,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.009954861111111112,0.04606481481481482
+k-NN,4,2,11,Balanced accuracy,-0.09375,0.0,0.09375,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.009954861111111112,0.04606481481481482
+k-NN,4,3,12,Balanced accuracy,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.009954861111111112,0.04606481481481482
+k-NN,5,1,13,Balanced accuracy,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.009954861111111112,0.04606481481481482
+k-NN,5,2,14,Balanced accuracy,0.0,0.03125,0.03125,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.009954861111111112,0.04606481481481482
+k-NN,5,3,15,Balanced accuracy,-0.05555555555555558,0.05555555555555558,0.11111111111111116,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.009954861111111112,0.04606481481481482
+k-NN,1,1,1,Macro-F1,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.01186802209886891,0.041686961926347556
+k-NN,1,2,2,Macro-F1,0.0,0.04554079696394675,0.04554079696394675,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.01186802209886891,0.041686961926347556
+k-NN,1,3,3,Macro-F1,0.043348091924942045,0.04554079696394675,0.0021927050390047054,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.01186802209886891,0.041686961926347556
+k-NN,2,1,4,Macro-F1,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.01186802209886891,0.041686961926347556
+k-NN,2,2,5,Macro-F1,0.052355487649605514,0.0,-0.052355487649605514,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.01186802209886891,0.041686961926347556
+k-NN,2,3,6,Macro-F1,0.04554079696394675,0.04554079696394675,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.01186802209886891,0.041686961926347556
+k-NN,3,1,7,Macro-F1,-0.04820920303605325,0.04820920303605325,0.0964184060721065,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.01186802209886891,0.041686961926347556
+k-NN,3,2,8,Macro-F1,0.0,0.04554079696394675,0.04554079696394675,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.01186802209886891,0.041686961926347556
+k-NN,3,3,9,Macro-F1,0.04820920303605325,0.0,-0.04820920303605325,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.01186802209886891,0.041686961926347556
+k-NN,4,1,10,Macro-F1,0.0888888888888888,0.0,-0.0888888888888888,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.01186802209886891,0.041686961926347556
+k-NN,4,2,11,Macro-F1,-0.09375,0.0,0.09375,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.01186802209886891,0.041686961926347556
+k-NN,4,3,12,Macro-F1,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.01186802209886891,0.041686961926347556
+k-NN,5,1,13,Macro-F1,0.0,0.0,0.0,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.01186802209886891,0.041686961926347556
+k-NN,5,2,14,Macro-F1,0.0,0.043348091924942045,0.043348091924942045,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.01186802209886891,0.041686961926347556
+k-NN,5,3,15,Macro-F1,-0.04820920303605325,0.04820920303605325,0.0964184060721065,MI_leakage_difference_minus_ANOVA_leakage_difference,-0.01186802209886891,0.041686961926347556

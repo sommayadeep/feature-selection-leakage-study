@@ -1,0 +1,6 @@
+# Tested with CPython 3.12.13.
+# These are the direct runtime dependencies used by the committed scripts.
+matplotlib==3.11.2
+numpy==2.5.4
+pandas==3.0.6
+scikit-learn==1.9.1
