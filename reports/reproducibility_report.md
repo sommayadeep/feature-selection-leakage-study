@@ -555,7 +555,7 @@ later.
 
 | Check | Current evidence | Status |
 |---|---|---|
-| Python compilation | Local compilation of substantive `src/*.py` and `tests/*.py` | **VERIFIED: passed** |
+| Python compilation | Filtered compilation of substantive `src/*.py` and `tests/*.py` | **VERIFIED: passed**; an unfiltered local `compileall src tests` also visits ignored macOS `._*` files and reports null-byte errors |
 | Automated tests | `python -m unittest discover -s tests -p 'test_*.py'` | **VERIFIED: 21 passed** |
 | Dependency consistency | `python -m pip check` | **VERIFIED: passed** |
 | GitHub Actions | Run #6 for commit `50e17a9` | **VERIFIED: success** |
@@ -645,4 +645,3 @@ behavior, not as proof that the scientific conclusions are valid. Manuscript
 preparation would require, at minimum, an explicit data-use position,
 restricted methodological claims, transparent provenance limitations, and a
 venue-specific assessment of data and artifact requirements.
-
