@@ -184,7 +184,10 @@ Expected result for the current project state: 18 tests pass.
 The same dependency installation, compilation, dependency check, and test
 suite run automatically on pushes and pull requests targeting `main` through
 the [GitHub Actions test workflow](.github/workflows/tests.yml). The CI job
-does not require or access the excluded leukemia dataset.
+does not require or access the excluded leukemia dataset. CI validates the
+saved manifest's structure and the split-validation logic using synthetic
+labels; checking its class assignments against the restricted dataset remains
+an authorized local-data validation step.
 
 To regenerate the Phase 7 tables and figures after placing an authorized
 dataset locally and confirming the saved source result hashes:

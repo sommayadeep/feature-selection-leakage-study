@@ -112,6 +112,18 @@ class LeakageBoundaryTests(unittest.TestCase):
         ) as manifest_file:
             rows = list(csv.DictReader(manifest_file))
 
+        for row_number, row in enumerate(rows, start=1):
+            self.assertEqual(int(row["seed"]), DEFAULT_CONFIG.seed)
+            self.assertEqual(
+                int(row["outer_splits"]),
+                DEFAULT_CONFIG.outer_splits,
+            )
+            self.assertEqual(
+                int(row["outer_repeats"]),
+                DEFAULT_CONFIG.outer_repeats,
+            )
+            self.assertEqual(int(row["global_fold"]), row_number)
+
         return [
             (
                 np.fromstring(row["train_indices"], sep=";", dtype=int),
