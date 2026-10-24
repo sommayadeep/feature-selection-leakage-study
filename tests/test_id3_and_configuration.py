@@ -17,7 +17,6 @@ import run_id3_experiment as id3  # noqa: E402
 import compare_leakage as knn  # noqa: E402
 from experiment_config import (  # noqa: E402
     DEFAULT_CONFIG,
-    load_outer_split_manifest,
     make_outer_splits,
     outer_split_manifest_rows,
     validate_outer_splits,
