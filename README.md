@@ -1,3 +1,4 @@
+# [![Tests](https://github.com/sommayadeep/feature-selection-leakage-study/actions/workflows/tests.yml/badge.svg)](https://github.com/sommayadeep/feature-selection-leakage-study/actions/workflows/tests.yml)
 # Leakage-Safe Feature Selection for ID3 and k-NN
 
 Measuring performance inflation and feature-selection stability on a
@@ -179,6 +180,11 @@ PYTHONPATH=src python -m unittest discover -s tests -p 'test_*.py'
 ```
 
 Expected result for the current project state: 18 tests pass.
+
+The same dependency installation, compilation, dependency check, and test
+suite run automatically on pushes and pull requests targeting `main` through
+the [GitHub Actions test workflow](.github/workflows/tests.yml). The CI job
+does not require or access the excluded leukemia dataset.
 
 To regenerate the Phase 7 tables and figures after placing an authorized
 dataset locally and confirming the saved source result hashes:

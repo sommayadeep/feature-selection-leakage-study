@@ -1,13 +1,13 @@
+import csv
 import hashlib
 import sys
 import unittest
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.preprocessing import StandardScaler
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -106,9 +106,20 @@ class Id3CoreTests(unittest.TestCase):
 
 
 class LeakageBoundaryTests(unittest.TestCase):
-    def _processed_labels(self):
-        data = pd.read_csv(ROOT / "data" / "processed" / "leukemia.csv")
-        return LabelEncoder().fit_transform(data["target"].to_numpy())
+    def _saved_manifest_splits(self):
+        with (ROOT / "configs" / "outer_fold_manifest.csv").open(
+            newline="",
+            encoding="utf-8",
+        ) as manifest_file:
+            rows = list(csv.DictReader(manifest_file))
+
+        return [
+            (
+                np.fromstring(row["train_indices"], sep=";", dtype=int),
+                np.fromstring(row["test_indices"], sep=";", dtype=int),
+            )
+            for row in rows
+        ]
 
     def test_safe_selection_does_not_read_test_labels(self):
         X_train = np.array(
@@ -149,40 +160,31 @@ class LeakageBoundaryTests(unittest.TestCase):
         )
         validate_outer_splits(labels, first)
 
-    def test_saved_manifest_is_stratified_and_reused_by_both_models(self):
-        labels = self._processed_labels()
-        manifest_path = ROOT / "configs" / "outer_fold_manifest.csv"
-
-        manifest_splits = load_outer_split_manifest(manifest_path, labels)
-        generated_splits = make_outer_splits(labels)
+    def test_saved_manifest_is_complete_and_disjoint(self):
+        manifest_splits = self._saved_manifest_splits()
 
         self.assertEqual(len(manifest_splits), 15)
-        for manifest_split, generated_split in zip(
-            manifest_splits,
-            generated_splits,
-        ):
-            np.testing.assert_array_equal(manifest_split[0], generated_split[0])
-            np.testing.assert_array_equal(manifest_split[1], generated_split[1])
+        test_counts = np.zeros(72, dtype=int)
+        for train_idx, test_idx in manifest_splits:
+            self.assertEqual(len(train_idx), 48)
+            self.assertEqual(len(test_idx), 24)
+            self.assertEqual(len(np.unique(train_idx)), len(train_idx))
+            self.assertEqual(len(np.unique(test_idx)), len(test_idx))
+            self.assertEqual(np.intersect1d(train_idx, test_idx).size, 0)
+            np.testing.assert_array_equal(
+                np.sort(np.concatenate([train_idx, test_idx])),
+                np.arange(72),
+            )
+            test_counts[test_idx] += 1
 
-        test_counts = np.bincount(
-            np.concatenate([test_idx for _, test_idx in manifest_splits]),
-            minlength=len(labels),
-        )
         np.testing.assert_array_equal(
             test_counts,
-            np.full(len(labels), DEFAULT_CONFIG.outer_repeats),
+            np.full(72, DEFAULT_CONFIG.outer_repeats),
         )
 
-    def test_shared_splits_can_be_passed_identically_to_both_models(self):
-        labels = self._processed_labels()
-        splits_for_id3 = load_outer_split_manifest(
-            ROOT / "configs" / "outer_fold_manifest.csv",
-            labels,
-        )
-        splits_for_knn = load_outer_split_manifest(
-            ROOT / "configs" / "outer_fold_manifest.csv",
-            labels,
-        )
+    def test_saved_manifest_can_be_reused_by_both_models(self):
+        splits_for_id3 = self._saved_manifest_splits()
+        splits_for_knn = self._saved_manifest_splits()
 
         for id3_split, knn_split in zip(splits_for_id3, splits_for_knn):
             np.testing.assert_array_equal(id3_split[0], knn_split[0])
