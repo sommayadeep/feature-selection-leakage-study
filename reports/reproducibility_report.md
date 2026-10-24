@@ -5,7 +5,7 @@
 Measuring Performance Inflation and Feature Stability on High-Dimensional
 Genomic Data*  
 **Repository:** <https://github.com/sommayadeep/feature-selection-leakage-study>  
-**Audited branch:** `main` at commit `50e17a96c940aebc8d2c07b4daa78b2533b09846`  
+**Audited branch:** `main` at commit `0fe8eb1b06a7beeb53837981bf041ef408bf2974`  
 **Audit scope:** Repository documentation, source, tests, configurations,
 saved results, figures, and prior audit reports. No experiment was rerun and
 no restricted dataset was downloaded or published for this report.
@@ -40,9 +40,9 @@ The current shared comparison implements:
 **VERIFIED:** The current repository contains import-safe shared runners,
 configuration and manifest files, saved result tables, a maintained Phase 7
 analysis generator, a maintained plotting script, focused tests, and a
-GitHub Actions workflow. The latest recorded GitHub Actions run for commit
-`50e17a96c940aebc8d2c07b4daa78b2533b09846` completed successfully; the local
-suite has 21 tests.
+GitHub Actions workflow. The latest recorded GitHub Actions run for the
+audited commit `0fe8eb1b06a7beeb53837981bf041ef408bf2974` completed
+successfully; the local suite has 21 tests.
 
 **VERIFIED:** The shared Phase 7 outputs support a bounded descriptive
 statement: on this 72-sample dataset and fixed protocol, all eight saved
@@ -258,8 +258,8 @@ listed in `requirements.txt`.
 It installs `requirements.txt`, runs `pip check`, compiles `src` and `tests`,
 and runs the unittest suite with `PYTHONPATH=src`.
 
-The latest recorded run for the current `main` commit succeeded:
-<https://github.com/sommayadeep/feature-selection-leakage-study/actions/runs/40066924702>.
+The latest recorded run for the audited `main` commit succeeded:
+<https://github.com/sommayadeep/feature-selection-leakage-study/actions/runs/40067292542>.
 
 ### Operating-system limitations
 
@@ -300,9 +300,9 @@ repository:
   tracked.
 - `.github/workflows/tests.yml`: automated CI workflow.
 
-**VERIFIED:** No notebooks or manuscript files are required by the current
-repository structure. The project retains historical artifacts, but they are
-not automatically treated as current shared-protocol results.
+**VERIFIED:** No notebooks or manuscript files are tracked in the current
+repository. The project retains historical artifacts, but they are not
+automatically treated as current shared-protocol results.
 
 ## F. Experimental protocol
 
@@ -558,7 +558,7 @@ later.
 | Python compilation | Filtered compilation of substantive `src/*.py` and `tests/*.py` | **VERIFIED: passed**; an unfiltered local `compileall src tests` also visits ignored macOS `._*` files and reports null-byte errors |
 | Automated tests | `python -m unittest discover -s tests -p 'test_*.py'` | **VERIFIED: 21 passed** |
 | Dependency consistency | `python -m pip check` | **VERIFIED: passed** |
-| GitHub Actions | Run #6 for commit `50e17a9` | **VERIFIED: success** |
+| GitHub Actions | Run #8 for commit `0fe8eb1` | **VERIFIED: success** |
 | Data-independent validation | Manifest structure, plotting transformations, source analysis validation | **VERIFIED** |
 | Dataset-dependent validation | Full experiments and class-label manifest validation require local data | **CONDITIONAL** |
 | Full experiment rerun for this report | Not performed | **NOT PERFORMED** |
