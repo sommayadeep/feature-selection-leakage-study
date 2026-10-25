@@ -235,7 +235,7 @@ historical result table was modified.
 | Preserve historical Phase 7 artifacts before regeneration | COMPLETE | [`phase9b_backup_20261024_095818/`](./phase9b_backup_20261024_095818/) contains the original tables, figures, and SHA-256 hashes |
 | Reproduce Phase 7 tables | COMPLETE | All six CSVs match the pre-run versions byte-for-byte; row counts are 120, 8, 60, 4, 60, and 4 |
 | Reconstruct Phase 7 figures | COMPLETE | Three publication-readable figures regenerated; exact PNG bytes are not reproducible because the original plotting session was not preserved |
-| Add analysis tests and input validation | COMPLETE | [`../tests/test_phase9b_analysis.py`](../tests/test_phase9b_analysis.py); full suite passes 18 tests |
+| Add analysis tests and input validation | COMPLETE | [`../tests/test_phase9b_analysis.py`](../tests/test_phase9b_analysis.py); Phase 9B recorded 18 tests, and the current suite passes 21 tests |
 | Record reproducibility metadata | COMPLETE | [`phase9b_reproducibility_manifest.json`](./phase9b_reproducibility_manifest.json) records command, environment, hashes, and bootstrap settings |
 | Create Phase 9B report | COMPLETE | [`phase9b_reproducibility_report.md`](./phase9b_reproducibility_report.md) |
 | Manuscript readiness after Phase 9B | NOT READY | Exact-data licensing/provenance and external-validation limitations from Phases 8-9A remain unresolved |

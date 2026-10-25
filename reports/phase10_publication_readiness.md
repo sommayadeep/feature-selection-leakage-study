@@ -100,7 +100,9 @@ with [`run_id3_experiment.py`](../src/run_id3_experiment.py) and
   analysis pipeline. The three figures were reconstructed numerically but
   are not byte-identical to the historical PNGs because the original plotting
   session was not preserved.
-- The full test suite was recorded as 18 passing tests in Phase 9B.
+- Phase 9B recorded 18 passing tests at the time of that report; the current
+  repository test suite contains 21 tests, verified locally without requiring
+  the restricted dataset.
 
 These results are documented in
 [`phase7_final_comparative_analysis.md`](./phase7_final_comparative_analysis.md)
