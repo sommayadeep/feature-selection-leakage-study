@@ -380,6 +380,44 @@ def create_selector(selector_name):
     )
 
 
+def select_fold_features(
+    X_train,
+    X_test,
+    y_train,
+    selector_name,
+    gene_names,
+    *,
+    leakage_mode="safe",
+    X_all=None,
+    y_all=None,
+):
+    """Select fold features, keeping held-out labels out of the safe path."""
+
+    selector = create_selector(selector_name)
+    if leakage_mode == "safe":
+        X_train_selected = selector.fit_transform(X_train, y_train)
+        X_test_selected = selector.transform(X_test)
+    elif leakage_mode == "leaky":
+        if X_all is None or y_all is None:
+            raise ValueError(
+                "The leaky diagnostic requires all observations and labels."
+            )
+        selector.fit(X_all, y_all)
+        selected_indices = selector.get_support(indices=True)
+        X_train_selected = X_train[:, selected_indices]
+        X_test_selected = X_test[:, selected_indices]
+    else:
+        raise ValueError(f"Unknown leakage mode: {leakage_mode}")
+
+    selected_indices = selector.get_support(indices=True)
+    return (
+        X_train_selected,
+        X_test_selected,
+        np.asarray(gene_names)[selected_indices],
+        selected_indices,
+    )
+
+
 # ============================================================
 
 
@@ -620,66 +658,33 @@ def main(argv=None):
                     f"mode={leakage_mode}"
                 )
 
-                selector = create_selector(
-                    selector_name
-                )
-
                 # -----------------------------------------------
                 # SAFE FEATURE SELECTION
                 # -----------------------------------------------
-
-                if leakage_mode == "safe":
-
-                    # Fit selection using training patients only.
-                    X_train_selected = selector.fit_transform(
-                        X_train_imputed,
-                        y_train,
-                    )
-
-                    X_test_selected = selector.transform(
-                        X_test_imputed
-                    )
-
-                    selected_gene_names = gene_names[
-                        selector.get_support(
-                            indices=True
-                        )
-                    ]
-
-                # -----------------------------------------------
-                # DELIBERATELY LEAKY FEATURE SELECTION
-                # -----------------------------------------------
-
-                else:
-
-                    # Diagnostic control only:
-                    # feature selection sees all patient labels,
-                    # including labels from the held-out test fold.
-                    #
-                    # Imputation is still fitted on the training
-                    # fold, so this isolates the intended source
-                    # of leakage more closely.
-
-                    selector.fit(
-                        X_all_imputed,
-                        y,
-                    )
-
-                    selected_indices = selector.get_support(
-                        indices=True
-                    )
-
-                    X_train_selected = (
-                        X_train_imputed[:, selected_indices]
-                    )
-
-                    X_test_selected = (
-                        X_test_imputed[:, selected_indices]
-                    )
-
-                    selected_gene_names = gene_names[
-                        selected_indices
-                    ]
+                # The leaky diagnostic receives all labels explicitly;
+                # the safe branch receives training-fold labels only.
+                selection_kwargs = (
+                    {
+                        "X_all": X_all_imputed,
+                        "y_all": y,
+                    }
+                    if leakage_mode == "leaky"
+                    else {}
+                )
+                (
+                    X_train_selected,
+                    X_test_selected,
+                    selected_gene_names,
+                    selected_indices,
+                ) = select_fold_features(
+                    X_train_imputed,
+                    X_test_imputed,
+                    y_train,
+                    selector_name,
+                    gene_names,
+                    leakage_mode=leakage_mode,
+                    **selection_kwargs,
+                )
 
                 # -----------------------------------------------
                 # D. Fit discretization on training data only.

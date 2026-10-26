@@ -5,7 +5,6 @@ import unittest
 from pathlib import Path
 
 import numpy as np
-from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 
@@ -132,26 +131,68 @@ class LeakageBoundaryTests(unittest.TestCase):
             for row in rows
         ]
 
-    def test_safe_selection_does_not_read_test_labels(self):
+    def test_id3_safe_selection_uses_training_fold_only(self):
         X_train = np.array(
-            [[0.0, 0.0], [0.1, 1.0], [1.0, 0.0], [1.1, 1.0]]
+            [
+                [0.0, 0.0, 1.0],
+                [0.1, 1.0, 0.0],
+                [0.2, 0.0, 1.0],
+                [0.3, 1.0, 0.0],
+                [1.0, 0.0, 0.0],
+                [1.1, 1.0, 1.0],
+                [1.2, 0.0, 0.0],
+                [1.3, 1.0, 1.0],
+            ]
         )
-        y_train = np.array([0, 0, 1, 1])
-        X_test = np.array([[0.2, 0.0], [0.9, 1.0]])
+        y_train = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+        X_test = np.array([[0.15, 0.0, 0.5], [1.15, 1.0, 0.5]])
+        feature_names = np.array(["signal", "noise_a", "noise_b"])
 
-        selector_a = SelectKBest(score_func=f_classif, k=1)
-        selector_b = SelectKBest(score_func=f_classif, k=1)
-        selector_a.fit(X_train, y_train)
-        selector_b.fit(X_train, y_train)
+        original_n_features = id3.N_FEATURES
+        X_all = np.vstack([X_train, X_test])
+        y_all = np.concatenate([y_train, [0, 1]])
+        id3.N_FEATURES = 1
+        try:
+            first = id3.select_fold_features(
+                X_train,
+                X_test,
+                y_train,
+                "ANOVA",
+                feature_names,
+                X_all=X_all,
+                y_all=y_all,
+            )
+            # Even when held-out labels are available to the caller, the safe
+            # condition must ignore them.
+            y_all[-2:] = [1, 0]
+            second = id3.select_fold_features(
+                X_train,
+                X_test,
+                y_train,
+                "ANOVA",
+                feature_names,
+                X_all=X_all,
+                y_all=y_all,
+            )
+        finally:
+            id3.N_FEATURES = original_n_features
 
-        np.testing.assert_array_equal(
-            selector_a.transform(X_test),
-            selector_b.transform(X_test),
-        )
-        np.testing.assert_array_equal(
-            selector_a.get_support(indices=True),
-            np.array([0]),
-        )
+        np.testing.assert_array_equal(first[3], [0])
+        np.testing.assert_array_equal(first[3], second[3])
+        np.testing.assert_array_equal(first[2], ["signal"])
+        np.testing.assert_array_equal(first[0], second[0])
+        np.testing.assert_array_equal(first[1], second[1])
+
+    def test_id3_leaky_selection_requires_all_labels(self):
+        with self.assertRaisesRegex(ValueError, "requires all observations"):
+            id3.select_fold_features(
+                np.zeros((4, 2)),
+                np.zeros((2, 2)),
+                np.array([0, 0, 1, 1]),
+                "ANOVA",
+                np.array(["a", "b"]),
+                leakage_mode="leaky",
+            )
 
     def test_shared_outer_splits_are_deterministic_and_matched(self):
         labels = np.array([0, 0, 0, 1, 1, 1] * 2)
