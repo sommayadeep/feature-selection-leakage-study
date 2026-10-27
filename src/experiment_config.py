@@ -68,11 +68,14 @@ def validate_outer_splits(
         )
 
     expected_test_counts = np.zeros(len(labels), dtype=int)
+    repeat_test_indices: list[list[np.ndarray]] = [
+        [] for _ in range(config.outer_repeats)
+    ]
     class_labels, class_counts = np.unique(labels, return_counts=True)
     if len(class_labels) < 2:
         raise ValueError("At least two classes are required for stratification.")
 
-    for train_idx, test_idx in split_list:
+    for split_number, (train_idx, test_idx) in enumerate(split_list):
         train_idx = np.asarray(train_idx, dtype=int)
         test_idx = np.asarray(test_idx, dtype=int)
 
@@ -112,6 +115,15 @@ def validate_outer_splits(
             raise ValueError("A test split is not class-stratified.")
 
         expected_test_counts[test_idx] += 1
+        repeat_number = split_number // config.outer_splits
+        repeat_test_indices[repeat_number].append(test_idx)
+
+    for repeat_number, test_folds in enumerate(repeat_test_indices, start=1):
+        if len({tuple(sorted(test_idx)) for test_idx in test_folds}) != config.outer_splits:
+            raise ValueError(
+                f"Repeat {repeat_number} must contain {config.outer_splits} "
+                "distinct test folds."
+            )
 
     if not np.all(expected_test_counts == config.outer_repeats):
         raise ValueError(

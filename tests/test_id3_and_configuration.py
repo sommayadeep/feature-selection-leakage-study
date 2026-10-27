@@ -212,6 +212,24 @@ class LeakageBoundaryTests(unittest.TestCase):
         )
         validate_outer_splits(labels, first)
 
+    def test_outer_split_validation_rejects_duplicate_fold_within_repeat(self):
+        labels = np.array([0, 0, 0, 1, 1, 1] * 2)
+        splits = make_outer_splits(labels)
+        malformed = list(splits)
+        malformed[1] = splits[0]
+
+        with self.assertRaisesRegex(ValueError, "distinct test folds"):
+            validate_outer_splits(labels, malformed)
+
+    def test_outer_split_validation_rejects_missing_fold_within_repeat(self):
+        labels = np.array([0, 0, 0, 1, 1, 1] * 2)
+        splits = make_outer_splits(labels)
+        malformed = list(splits)
+        malformed[2] = splits[0]
+
+        with self.assertRaisesRegex(ValueError, "distinct test folds"):
+            validate_outer_splits(labels, malformed)
+
     def test_saved_manifest_is_complete_and_disjoint(self):
         manifest_splits = self._saved_manifest_splits()
 
