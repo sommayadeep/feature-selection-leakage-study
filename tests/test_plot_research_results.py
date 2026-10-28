@@ -80,6 +80,15 @@ class ResearchPlottingTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "finite numeric values"):
                 plotting.load_feature_stability(path)
 
+    def test_duplicate_feature_stability_selector_is_rejected(self):
+        frame = pd.read_csv(ROOT / "results/tables/feature_stability.csv")
+        frame.loc[1, "selector"] = frame.loc[0, "selector"]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "feature_stability.csv"
+            frame.to_csv(path, index=False)
+            with self.assertRaisesRegex(ValueError, "duplicate selectors"):
+                plotting.load_feature_stability(path)
+
 
 if __name__ == "__main__":
     unittest.main()

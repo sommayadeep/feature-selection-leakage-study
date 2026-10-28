@@ -232,6 +232,8 @@ def load_feature_stability(path: Path = FEATURE_STABILITY) -> pd.DataFrame:
         raise ValueError(
             "Feature stability results must contain ANOVA and mutual information."
         )
+    if frame["selector"].duplicated().any():
+        raise ValueError("Feature stability results contain duplicate selectors.")
     if not frame["mean_jaccard"].between(0, 1).all():
         raise ValueError("Mean Jaccard values must be between 0 and 1.")
     if (frame["std_jaccard"] < 0).any():
