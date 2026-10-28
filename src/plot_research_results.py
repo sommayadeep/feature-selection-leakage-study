@@ -228,12 +228,12 @@ def load_feature_stability(path: Path = FEATURE_STABILITY) -> pd.DataFrame:
     numeric_columns = required - {"selector"}
     if not np.isfinite(frame[list(numeric_columns)].to_numpy(dtype=float)).all():
         raise ValueError("Feature stability results must contain finite numeric values.")
+    if frame["selector"].duplicated().any():
+        raise ValueError("Feature stability results contain duplicate selectors.")
     if set(frame["selector"]) != {"anova", "mutual_information"}:
         raise ValueError(
             "Feature stability results must contain ANOVA and mutual information."
         )
-    if frame["selector"].duplicated().any():
-        raise ValueError("Feature stability results contain duplicate selectors.")
     if not frame["mean_jaccard"].between(0, 1).all():
         raise ValueError("Mean Jaccard values must be between 0 and 1.")
     if (frame["std_jaccard"] < 0).any():
