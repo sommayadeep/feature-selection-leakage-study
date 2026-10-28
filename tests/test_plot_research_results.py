@@ -62,6 +62,24 @@ class ResearchPlottingTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "missing values"):
                 plotting.load_feature_stability(path)
 
+    def test_duplicate_phase7_fold_configuration_is_rejected(self):
+        frame = pd.read_csv(ROOT / "results/tables/phase7_paired_differences.csv")
+        frame = pd.concat([frame, frame.iloc[[0]]], ignore_index=True)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "phase7_paired_differences.csv"
+            frame.to_csv(path, index=False)
+            with self.assertRaisesRegex(ValueError, "duplicate fold rows"):
+                plotting.load_phase7_paired_results(path)
+
+    def test_non_finite_stability_summary_is_rejected(self):
+        frame = pd.read_csv(ROOT / "results/tables/feature_stability.csv")
+        frame.loc[0, "std_jaccard"] = float("inf")
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "feature_stability.csv"
+            frame.to_csv(path, index=False)
+            with self.assertRaisesRegex(ValueError, "finite numeric values"):
+                plotting.load_feature_stability(path)
+
 
 if __name__ == "__main__":
     unittest.main()
