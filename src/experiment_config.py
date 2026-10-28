@@ -41,6 +41,16 @@ def make_outer_splits(
         raise ValueError("outer_splits must be at least 2.")
     if config.outer_repeats < 1:
         raise ValueError("outer_repeats must be at least 1.")
+    _, class_counts = np.unique(labels, return_counts=True)
+    if len(class_counts) < 2:
+        raise ValueError("At least two classes are required for stratification.")
+    smallest_class_count = int(class_counts.min())
+    if smallest_class_count < config.outer_splits:
+        raise ValueError(
+            "Each class must contain at least outer_splits observations "
+            f"({config.outer_splits}); the smallest class has "
+            f"{smallest_class_count}."
+        )
 
     splitter = RepeatedStratifiedKFold(
         n_splits=config.outer_splits,
