@@ -69,6 +69,8 @@ def summarize_stability(
 ):
     """Return the existing per-selector pairwise Jaccard summary records."""
 
+    if repeats < 2:
+        raise ValueError("At least two resampled selections are required.")
     rows = []
     for method, gene_sets in selected_sets.items():
         if len(gene_sets) != repeats:

@@ -1,6 +1,8 @@
+import importlib
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,6 +15,11 @@ class FeatureStabilityTests(unittest.TestCase):
     def test_import_exposes_calculations_without_loading_experiment_data(self):
         self.assertTrue(callable(stability.jaccard_similarity))
         self.assertTrue(callable(stability.summarize_stability))
+        with mock.patch(
+            "pandas.read_csv",
+            side_effect=AssertionError("module import must not load experiment data"),
+        ):
+            importlib.reload(stability)
 
     def test_jaccard_similarity_handles_overlap_and_empty_sets(self):
         self.assertAlmostEqual(
@@ -44,6 +51,14 @@ class FeatureStabilityTests(unittest.TestCase):
             stability.summarize_stability(
                 {"anova": [{"a", "b"}, {"a"}]},
                 repeats=2,
+                features_per_repeat=2,
+            )
+
+    def test_summary_requires_two_resamples_for_sample_standard_deviation(self):
+        with self.assertRaisesRegex(ValueError, "At least two"):
+            stability.summarize_stability(
+                {"anova": [{"a", "b"}]},
+                repeats=1,
                 features_per_repeat=2,
             )
 
