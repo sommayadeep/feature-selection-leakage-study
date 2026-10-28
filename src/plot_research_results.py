@@ -65,6 +65,22 @@ def _validate_numeric(
             raise ValueError(f"{description} column '{column}' must be numeric.")
 
 
+def _validate_fold_keys(
+    frame: pd.DataFrame,
+    keys: list[str],
+    expected_keys: set[tuple[object, ...]],
+    description: str,
+) -> None:
+    if frame[keys].duplicated().any():
+        raise ValueError(f"{description} contains duplicate fold rows.")
+    actual_keys = set(frame[keys].itertuples(index=False, name=None))
+    if actual_keys != expected_keys:
+        raise ValueError(
+            f"{description} must contain every expected configuration/fold "
+            "combination exactly once."
+        )
+
+
 def load_phase7_paired_results(path: Path = PHASE7_PAIRED) -> pd.DataFrame:
     """Load and validate the shared 3x5 paired leakage results."""
 
@@ -91,6 +107,9 @@ def load_phase7_paired_results(path: Path = PHASE7_PAIRED) -> pd.DataFrame:
         required - {"classifier", "selector", "metric"},
         "Phase 7 paired results",
     )
+    numeric_columns = required - {"classifier", "selector", "metric"}
+    if not np.isfinite(frame[list(numeric_columns)].to_numpy(dtype=float)).all():
+        raise ValueError("Phase 7 paired results must contain finite numeric values.")
 
     if set(frame["classifier"]) != set(EXPECTED_CLASSIFIERS):
         raise ValueError("Phase 7 paired results must contain ID3 and k-NN.")
@@ -100,8 +119,20 @@ def load_phase7_paired_results(path: Path = PHASE7_PAIRED) -> pd.DataFrame:
         raise ValueError(
             "Phase 7 paired results must contain Macro-F1 and balanced accuracy."
         )
-    if frame["global_fold"].nunique() != 15:
-        raise ValueError("Phase 7 paired results must contain 15 outer folds.")
+    expected_paired_keys = {
+        (classifier, selector, repeat, fold, (repeat - 1) * 3 + fold, metric)
+        for classifier in EXPECTED_CLASSIFIERS
+        for selector in EXPECTED_SELECTORS
+        for repeat in range(1, 6)
+        for fold in range(1, 4)
+        for metric in EXPECTED_METRICS
+    }
+    _validate_fold_keys(
+        frame,
+        ["classifier", "selector", "repeat", "fold", "global_fold", "metric"],
+        expected_paired_keys,
+        "Phase 7 paired results",
+    )
     if not frame["safe_value"].between(0, 1).all():
         raise ValueError("Safe metric values must be between 0 and 1.")
     if not frame["leaky_value"].between(0, 1).all():
@@ -139,14 +170,28 @@ def load_phase7_model_results(path: Path = PHASE7_MODEL) -> pd.DataFrame:
         required - {"selector", "metric"},
         "Phase 7 model comparison",
     )
+    numeric_columns = required - {"selector", "metric"}
+    if not np.isfinite(frame[list(numeric_columns)].to_numpy(dtype=float)).all():
+        raise ValueError("Phase 7 model comparison must contain finite numeric values.")
     if set(frame["selector"]) != set(EXPECTED_SELECTORS):
         raise ValueError("Phase 7 model comparison must contain ANOVA and MI.")
     if set(frame["metric"]) != set(EXPECTED_METRICS):
         raise ValueError(
             "Phase 7 model comparison must contain Macro-F1 and balanced accuracy."
         )
-    if frame["global_fold"].nunique() != 15:
-        raise ValueError("Phase 7 model comparison must contain 15 outer folds.")
+    expected_model_keys = {
+        (selector, repeat, fold, (repeat - 1) * 3 + fold, metric)
+        for selector in EXPECTED_SELECTORS
+        for repeat in range(1, 6)
+        for fold in range(1, 4)
+        for metric in EXPECTED_METRICS
+    }
+    _validate_fold_keys(
+        frame,
+        ["selector", "repeat", "fold", "global_fold", "metric"],
+        expected_model_keys,
+        "Phase 7 model comparison",
+    )
     if not frame["id3_safe_value"].between(0, 1).all():
         raise ValueError("ID3 metric values must be between 0 and 1.")
     if not frame["knn_safe_value"].between(0, 1).all():
@@ -180,6 +225,9 @@ def load_feature_stability(path: Path = FEATURE_STABILITY) -> pd.DataFrame:
         required - {"selector"},
         "Feature stability results",
     )
+    numeric_columns = required - {"selector"}
+    if not np.isfinite(frame[list(numeric_columns)].to_numpy(dtype=float)).all():
+        raise ValueError("Feature stability results must contain finite numeric values.")
     if set(frame["selector"]) != {"anova", "mutual_information"}:
         raise ValueError(
             "Feature stability results must contain ANOVA and mutual information."
