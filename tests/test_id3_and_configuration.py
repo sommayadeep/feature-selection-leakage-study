@@ -212,6 +212,21 @@ class LeakageBoundaryTests(unittest.TestCase):
         )
         validate_outer_splits(labels, first)
 
+    def test_outer_split_generation_rejects_too_small_class_before_splitter(self):
+        labels = np.array([0, 0, 0, 1, 1])
+        with self.assertRaisesRegex(
+            ValueError,
+            r"Each class must contain at least outer_splits observations.*smallest class has 2",
+        ):
+            make_outer_splits(labels)
+
+    def test_outer_split_generation_accepts_class_count_equal_to_fold_count(self):
+        labels = np.array([0, 0, 0, 1, 1, 1])
+        splits = make_outer_splits(labels)
+        self.assertEqual(len(splits), DEFAULT_CONFIG.outer_splits * DEFAULT_CONFIG.outer_repeats)
+        for _, test_idx in splits:
+            self.assertEqual(set(labels[test_idx]), {0, 1})
+
     def test_outer_split_validation_rejects_duplicate_fold_within_repeat(self):
         labels = np.array([0, 0, 0, 1, 1, 1] * 2)
         splits = make_outer_splits(labels)
