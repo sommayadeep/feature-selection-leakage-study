@@ -179,7 +179,7 @@ Run the complete lightweight test suite:
 PYTHONPATH=src python -m unittest discover -s tests -p 'test_*.py'
 ```
 
-Expected result for the current project state: 33 tests pass.
+Expected result for the current project state: 34 tests pass.
 
 The same dependency installation, compilation, dependency check, and test
 suite run automatically on pushes and pull requests targeting `main` through
