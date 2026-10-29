@@ -220,6 +220,29 @@ class LeakageBoundaryTests(unittest.TestCase):
         ):
             make_outer_splits(labels)
 
+    def test_outer_split_preflight_rejects_invalid_labels_and_settings(self):
+        for labels in (
+            np.array([[0, 0, 1, 1, 0, 1]]),
+            np.array([0, 0, 1, 1, np.nan, 1]),
+            np.array([0, 0, 1, 1, None, 1], dtype=object),
+        ):
+            with self.subTest(labels=labels), self.assertRaisesRegex(
+                ValueError,
+                "one-dimensional|finite, non-missing",
+            ):
+                make_outer_splits(labels)
+
+        invalid_configs = (
+            DEFAULT_CONFIG.__class__(outer_splits=1),
+            DEFAULT_CONFIG.__class__(outer_repeats=0),
+            DEFAULT_CONFIG.__class__(selected_features=0),
+            DEFAULT_CONFIG.__class__(knn_neighbors=0),
+        )
+        labels = np.array([0, 0, 0, 1, 1, 1])
+        for config in invalid_configs:
+            with self.subTest(config=config), self.assertRaises(ValueError):
+                make_outer_splits(labels, config)
+
     def test_outer_split_generation_accepts_class_count_equal_to_fold_count(self):
         labels = np.array([0, 0, 0, 1, 1, 1])
         splits = make_outer_splits(labels)

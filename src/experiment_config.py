@@ -37,10 +37,22 @@ def make_outer_splits(
         raise ValueError("labels must be one-dimensional.")
     if len(labels) == 0:
         raise ValueError("labels must not be empty.")
+    if labels_have_invalid_values(labels):
+        raise ValueError("labels must contain finite, non-missing values.")
     if config.outer_splits < 2:
         raise ValueError("outer_splits must be at least 2.")
     if config.outer_repeats < 1:
         raise ValueError("outer_repeats must be at least 1.")
+    if config.selected_features < 1:
+        raise ValueError("selected_features must be at least 1.")
+    if config.discretization_bins < 2:
+        raise ValueError("discretization_bins must be at least 2.")
+    if config.id3_max_depth < 0:
+        raise ValueError("id3_max_depth must be non-negative.")
+    if config.id3_min_samples_split < 2:
+        raise ValueError("id3_min_samples_split must be at least 2.")
+    if config.knn_neighbors < 1:
+        raise ValueError("knn_neighbors must be at least 1.")
     _, class_counts = np.unique(labels, return_counts=True)
     if len(class_counts) < 2:
         raise ValueError("At least two classes are required for stratification.")
@@ -61,6 +73,18 @@ def make_outer_splits(
     return list(splitter.split(placeholder_features, labels))
 
 
+def labels_have_invalid_values(labels: np.ndarray) -> bool:
+    """Reject missing or non-finite labels without coercing class identities."""
+
+    for value in labels:
+        if value is None:
+            return True
+        if isinstance(value, (int, float, complex, np.number)):
+            if not bool(np.isfinite(value)):
+                return True
+    return False
+
+
 def validate_outer_splits(
     labels: np.ndarray,
     splits: Iterable[tuple[np.ndarray, np.ndarray]],
@@ -69,6 +93,12 @@ def validate_outer_splits(
     """Validate disjoint, complete, stratified repeated outer splits."""
 
     labels = np.asarray(labels)
+    if labels.ndim != 1:
+        raise ValueError("labels must be one-dimensional.")
+    if len(labels) == 0:
+        raise ValueError("labels must not be empty.")
+    if labels_have_invalid_values(labels):
+        raise ValueError("labels must contain finite, non-missing values.")
     split_list = list(splits)
     expected_count = config.outer_splits * config.outer_repeats
 
