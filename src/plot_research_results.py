@@ -81,6 +81,34 @@ def _validate_fold_keys(
         )
 
 
+def _validate_bootstrap_intervals(
+    frame: pd.DataFrame,
+    group_columns: list[str],
+    low_column: str,
+    high_column: str,
+    description: str,
+) -> None:
+    """Validate one bounded, consistently reported interval per comparison."""
+
+    low = frame[low_column]
+    high = frame[high_column]
+    if (low > high).any():
+        raise ValueError(f"{description} interval bounds are not ordered.")
+    if not low.between(-1, 1).all() or not high.between(-1, 1).all():
+        raise ValueError(
+            f"{description} interval bounds must be between -1 and 1."
+        )
+
+    interval_counts = (
+        frame.groupby(group_columns, dropna=False)[[low_column, high_column]]
+        .nunique(dropna=False)
+    )
+    if (interval_counts > 1).any().any():
+        raise ValueError(
+            f"{description} interval bounds must be constant within each comparison."
+        )
+
+
 def load_phase7_paired_results(path: Path = PHASE7_PAIRED) -> pd.DataFrame:
     """Load and validate the shared 3x5 paired leakage results."""
 
@@ -131,6 +159,13 @@ def load_phase7_paired_results(path: Path = PHASE7_PAIRED) -> pd.DataFrame:
         frame,
         ["classifier", "selector", "repeat", "fold", "global_fold", "metric"],
         expected_paired_keys,
+        "Phase 7 paired results",
+    )
+    _validate_bootstrap_intervals(
+        frame,
+        ["classifier", "selector", "metric"],
+        "bootstrap_95_percentile_low",
+        "bootstrap_95_percentile_high",
         "Phase 7 paired results",
     )
     if not frame["safe_value"].between(0, 1).all():
@@ -190,6 +225,13 @@ def load_phase7_model_results(path: Path = PHASE7_MODEL) -> pd.DataFrame:
         frame,
         ["selector", "repeat", "fold", "global_fold", "metric"],
         expected_model_keys,
+        "Phase 7 model comparison",
+    )
+    _validate_bootstrap_intervals(
+        frame,
+        ["selector", "metric"],
+        "bootstrap_95_percentile_low",
+        "bootstrap_95_percentile_high",
         "Phase 7 model comparison",
     )
     if not frame["id3_safe_value"].between(0, 1).all():

@@ -71,6 +71,34 @@ class ResearchPlottingTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "duplicate fold rows"):
                 plotting.load_phase7_paired_results(path)
 
+    def test_reversed_bootstrap_interval_is_rejected(self):
+        frame = pd.read_csv(ROOT / "results/tables/phase7_paired_differences.csv")
+        frame.loc[0, "bootstrap_95_percentile_low"] = 0.5
+        frame.loc[0, "bootstrap_95_percentile_high"] = -0.5
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "phase7_paired_differences.csv"
+            frame.to_csv(path, index=False)
+            with self.assertRaisesRegex(ValueError, "not ordered"):
+                plotting.load_phase7_paired_results(path)
+
+    def test_inconsistent_bootstrap_interval_within_comparison_is_rejected(self):
+        frame = pd.read_csv(ROOT / "results/tables/phase7_model_comparison.csv")
+        frame.loc[0, "bootstrap_95_percentile_high"] += 0.01
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "phase7_model_comparison.csv"
+            frame.to_csv(path, index=False)
+            with self.assertRaisesRegex(ValueError, "constant within each comparison"):
+                plotting.load_phase7_model_results(path)
+
+    def test_out_of_range_bootstrap_interval_is_rejected(self):
+        frame = pd.read_csv(ROOT / "results/tables/phase7_model_comparison.csv")
+        frame["bootstrap_95_percentile_high"] = 1.01
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "phase7_model_comparison.csv"
+            frame.to_csv(path, index=False)
+            with self.assertRaisesRegex(ValueError, "between -1 and 1"):
+                plotting.load_phase7_model_results(path)
+
     def test_non_finite_stability_summary_is_rejected(self):
         frame = pd.read_csv(ROOT / "results/tables/feature_stability.csv")
         frame.loc[0, "std_jaccard"] = float("inf")
