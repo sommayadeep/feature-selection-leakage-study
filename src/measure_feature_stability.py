@@ -1,5 +1,6 @@
 """Measure feature-selection stability across stratified training resamples."""
 
+import csv
 from pathlib import Path
 
 import numpy as np
@@ -14,11 +15,99 @@ from sklearn.preprocessing import LabelEncoder
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_FILE = PROJECT_ROOT / "data" / "processed" / "leukemia.csv"
 OUTPUT_DIR = PROJECT_ROOT / "results" / "tables"
+SPLIT_MANIFEST_FILE = (
+    PROJECT_ROOT / "configs" / "feature_stability_split_manifest.csv"
+)
 
 N_REPEATS = 20
 N_FEATURES = 100
 TEST_SIZE = 0.25
 SEED = 42
+
+
+def make_stability_splits(
+    labels,
+    n_repeats=N_REPEATS,
+    test_size=TEST_SIZE,
+    seed=SEED,
+):
+    """Return the existing seeded stratified holdout schedule as index arrays."""
+
+    labels = np.asarray(labels)
+    if labels.ndim != 1 or len(labels) == 0:
+        raise ValueError("labels must be a non-empty one-dimensional array.")
+    if n_repeats < 1:
+        raise ValueError("n_repeats must be at least 1.")
+    if not 0 < test_size < 1:
+        raise ValueError("test_size must be between 0 and 1.")
+
+    splitter = StratifiedShuffleSplit(
+        n_splits=n_repeats,
+        test_size=test_size,
+        random_state=seed,
+    )
+    placeholder_features = np.zeros((len(labels), 1), dtype=float)
+    return list(splitter.split(placeholder_features, labels))
+
+
+def write_stability_split_manifest(
+    manifest_path,
+    labels,
+    splits,
+    n_repeats=N_REPEATS,
+    test_size=TEST_SIZE,
+    seed=SEED,
+):
+    """Archive exact sample indices and protocol settings for every resample."""
+
+    labels = np.asarray(labels)
+    splits = list(splits)
+    if len(splits) != n_repeats:
+        raise ValueError(f"Expected {n_repeats} resamples, found {len(splits)}.")
+
+    expected = make_stability_splits(labels, n_repeats, test_size, seed)
+    rows = []
+    for repeat, ((train_idx, test_idx), (expected_train, expected_test)) in enumerate(
+        zip(splits, expected),
+        start=1,
+    ):
+        train_idx = np.asarray(train_idx, dtype=int)
+        test_idx = np.asarray(test_idx, dtype=int)
+        if not np.array_equal(train_idx, expected_train) or not np.array_equal(
+            test_idx, expected_test
+        ):
+            raise ValueError(f"Resample {repeat} differs from the configured schedule.")
+        if np.intersect1d(train_idx, test_idx).size:
+            raise ValueError(f"Resample {repeat} has overlapping train/test indices.")
+        if not np.array_equal(
+            np.sort(np.concatenate((train_idx, test_idx))), np.arange(len(labels))
+        ):
+            raise ValueError(
+                f"Resample {repeat} does not cover all samples exactly once."
+            )
+        rows.append(
+            {
+                "seed": seed,
+                "n_repeats": n_repeats,
+                "test_size": test_size,
+                "repeat": repeat,
+                "train_size": len(train_idx),
+                "test_samples": len(test_idx),
+                "train_indices": ";".join(map(str, train_idx)),
+                "test_indices": ";".join(map(str, test_idx)),
+            }
+        )
+
+    manifest_path = Path(manifest_path)
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    with manifest_path.open("w", newline="", encoding="utf-8") as manifest_file:
+        writer = csv.DictWriter(
+            manifest_file,
+            fieldnames=list(rows[0]),
+            lineterminator="\n",
+        )
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 def select_genes(
@@ -116,10 +205,14 @@ def run_experiment(
     y = LabelEncoder().fit_transform(data["target"].astype(str))
     gene_names = data.drop(columns="target").columns.to_numpy()
 
-    splitter = StratifiedShuffleSplit(
-        n_splits=n_repeats,
+    splits = make_stability_splits(y, n_repeats, test_size, seed)
+    write_stability_split_manifest(
+        SPLIT_MANIFEST_FILE,
+        y,
+        splits,
+        n_repeats=n_repeats,
         test_size=test_size,
-        random_state=seed,
+        seed=seed,
     )
     selected_sets = {"anova": [], "mutual_information": []}
 
@@ -131,7 +224,7 @@ def run_experiment(
     print(f"Genes selected per repeat: {n_features}")
     print(f"Repeats: {n_repeats}")
 
-    for repeat, (train_idx, _) in enumerate(splitter.split(X, y), start=1):
+    for repeat, (train_idx, _) in enumerate(splits, start=1):
         X_train, y_train = X[train_idx], y[train_idx]
         for method in selected_sets:
             selected_sets[method].append(

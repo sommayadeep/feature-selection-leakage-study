@@ -1,8 +1,13 @@
+import csv
 import importlib
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+
 from unittest import mock
+
+import numpy as np
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -61,6 +66,62 @@ class FeatureStabilityTests(unittest.TestCase):
                 repeats=1,
                 features_per_repeat=2,
             )
+
+    def test_stability_splits_are_archived_with_reconstructable_indices(self):
+        labels = [0] * 12 + [1] * 8
+        splits = stability.make_stability_splits(
+            labels,
+            n_repeats=20,
+            test_size=0.25,
+            seed=42,
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manifest_path = Path(temp_dir) / "stability_splits.csv"
+            stability.write_stability_split_manifest(
+                manifest_path,
+                labels,
+                splits,
+                n_repeats=20,
+                test_size=0.25,
+                seed=42,
+            )
+            with manifest_path.open(newline="", encoding="utf-8") as manifest_file:
+                rows = list(csv.DictReader(manifest_file))
+
+        self.assertEqual(len(rows), 20)
+        self.assertEqual(rows[0]["seed"], "42")
+        self.assertEqual(rows[0]["n_repeats"], "20")
+        self.assertEqual(rows[0]["test_size"], "0.25")
+        for row, (expected_train, expected_test) in zip(rows, splits):
+            np.testing.assert_array_equal(
+                np.fromstring(row["train_indices"], sep=";", dtype=int),
+                expected_train,
+            )
+            np.testing.assert_array_equal(
+                np.fromstring(row["test_indices"], sep=";", dtype=int),
+                expected_test,
+            )
+            self.assertEqual(int(row["train_size"]), len(expected_train))
+            self.assertEqual(int(row["test_samples"]), len(expected_test))
+
+    def test_stability_split_manifest_rejects_a_changed_split_schedule(self):
+        labels = [0] * 12 + [1] * 8
+        splits = stability.make_stability_splits(labels, n_repeats=2)
+        altered = list(splits)
+        altered[0] = (splits[0][1], splits[0][0])
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with self.assertRaisesRegex(
+                ValueError,
+                "differs from the configured schedule",
+            ):
+                stability.write_stability_split_manifest(
+                    Path(temp_dir) / "stability_splits.csv",
+                    labels,
+                    altered,
+                    n_repeats=2,
+                )
 
 
 if __name__ == "__main__":
