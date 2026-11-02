@@ -1,6 +1,9 @@
 """Measure feature-selection stability across stratified training resamples."""
 
 import csv
+import hashlib
+import io
+import re
 from pathlib import Path
 
 import numpy as np
@@ -23,14 +26,16 @@ N_REPEATS = 20
 N_FEATURES = 100
 TEST_SIZE = 0.25
 SEED = 42
+SHA256_PATTERN = re.compile(r"[0-9a-f]{64}\Z")
 
 
-def make_stability_splits(
-    labels,
-    n_repeats=N_REPEATS,
-    test_size=TEST_SIZE,
-    seed=SEED,
-):
+def dataset_sha256(data_bytes):
+    """Return the SHA-256 digest of the exact processed dataset bytes."""
+
+    return hashlib.sha256(data_bytes).hexdigest()
+
+
+def make_stability_splits(labels, n_repeats=N_REPEATS, test_size=TEST_SIZE, seed=SEED):
     """Return the existing seeded stratified holdout schedule as index arrays."""
 
     labels = np.asarray(labels)
@@ -57,10 +62,15 @@ def write_stability_split_manifest(
     n_repeats=N_REPEATS,
     test_size=TEST_SIZE,
     seed=SEED,
+    dataset_hash=None,
 ):
     """Archive exact sample indices and protocol settings for every resample."""
 
     labels = np.asarray(labels)
+    if not isinstance(dataset_hash, str) or not SHA256_PATTERN.fullmatch(dataset_hash):
+        raise ValueError(
+            "dataset_hash must be a 64-character lowercase SHA-256 hex digest."
+        )
     splits = list(splits)
     if len(splits) != n_repeats:
         raise ValueError(f"Expected {n_repeats} resamples, found {len(splits)}.")
@@ -93,6 +103,7 @@ def write_stability_split_manifest(
                 "repeat": repeat,
                 "train_size": len(train_idx),
                 "test_samples": len(test_idx),
+                "dataset_sha256": dataset_hash,
                 "train_indices": ";".join(map(str, train_idx)),
                 "test_indices": ";".join(map(str, test_idx)),
             }
@@ -200,7 +211,9 @@ def run_experiment(
 ):
     """Run the configured stability experiment and save its summary CSV."""
 
-    data = pd.read_csv(data_file)
+    data_bytes = Path(data_file).read_bytes()
+    data_hash = dataset_sha256(data_bytes)
+    data = pd.read_csv(io.BytesIO(data_bytes))
     X = data.drop(columns="target").to_numpy(dtype=float)
     y = LabelEncoder().fit_transform(data["target"].astype(str))
     gene_names = data.drop(columns="target").columns.to_numpy()
@@ -213,6 +226,7 @@ def run_experiment(
         n_repeats=n_repeats,
         test_size=test_size,
         seed=seed,
+        dataset_hash=data_hash,
     )
     selected_sets = {"anova": [], "mutual_information": []}
 

@@ -1,4 +1,6 @@
 import csv
+import hashlib
+import io
 import importlib
 import sys
 import tempfile
@@ -8,6 +10,8 @@ from pathlib import Path
 from unittest import mock
 
 import numpy as np
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,6 +21,77 @@ import measure_feature_stability as stability  # noqa: E402
 
 
 class FeatureStabilityTests(unittest.TestCase):
+    def test_dataset_hash_is_deterministic_and_tracks_exact_bytes(self):
+        first = b"target,g1,g2\nA,1,2\nB,3,4\n"
+        same = b"target,g1,g2\nA,1,2\nB,3,4\n"
+        changed = b"target,g1,g2\nA,1,2\nB,3,5\n"
+
+        self.assertEqual(
+            stability.dataset_sha256(first), stability.dataset_sha256(same)
+        )
+        self.assertNotEqual(
+            stability.dataset_sha256(first), stability.dataset_sha256(changed)
+        )
+        self.assertEqual(stability.dataset_sha256(first), hashlib.sha256(first).hexdigest())
+
+    def test_dataset_hash_changes_with_sample_feature_or_label_order_and_values(self):
+        baseline = b"target,g1,g2\nA,1,2\nB,3,4\n"
+        variants = (
+            b"target,g1,g2\nB,3,4\nA,1,2\n",
+            b"target,g2,g1\nA,2,1\nB,4,3\n",
+            b"target,g1,g2\nB,1,2\nA,3,4\n",
+        )
+        baseline_hash = stability.dataset_sha256(baseline)
+        for variant in variants:
+            with self.subTest(variant=variant):
+                self.assertNotEqual(baseline_hash, stability.dataset_sha256(variant))
+
+    def test_split_manifest_requires_a_valid_sha256_digest(self):
+        labels = [0] * 12 + [1] * 8
+        splits = stability.make_stability_splits(labels, n_repeats=2)
+        for invalid in (None, "abc", "g" * 64, "A" * 64):
+            with self.subTest(invalid=invalid):
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    with self.assertRaisesRegex(ValueError, "64-character"):
+                        stability.write_stability_split_manifest(
+                            Path(temp_dir) / "manifest.csv", labels, splits,
+                            n_repeats=2, dataset_hash=invalid,
+                        )
+
+    def test_manifest_fingerprints_all_twenty_splits_and_experiment_parses_hashed_bytes(self):
+        content = b"target,g1,g2\n" + b"".join(
+            f"{'A' if i < 12 else 'B'},{i},{i + 1}\n".encode()
+            for i in range(20)
+        )
+        expected_hash = hashlib.sha256(content).hexdigest()
+        parsed = pd.read_csv(io.BytesIO(content))
+        encoded = LabelEncoder().fit_transform(parsed["target"].astype(str))
+        splits = stability.make_stability_splits(encoded, n_repeats=20)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source = Path(temp_dir) / "input.csv"
+            output = Path(temp_dir) / "out"
+            source.write_bytes(content)
+            with (
+                mock.patch.object(
+                    stability,
+                    "SPLIT_MANIFEST_FILE",
+                    Path(temp_dir) / "manifest.csv",
+                ),
+                mock.patch.object(
+                    stability,
+                    "select_genes",
+                    side_effect=[{"g1"} for _ in range(40)],
+                ),
+            ):
+                stability.run_experiment(source, output, n_repeats=20, n_features=1)
+            with (Path(temp_dir) / "manifest.csv").open(
+                newline="", encoding="utf-8"
+            ) as manifest_file:
+                rows = list(csv.DictReader(manifest_file))
+
+        self.assertEqual(len(rows), 20)
+        self.assertEqual({row["dataset_sha256"] for row in rows}, {expected_hash})
+
     def test_import_exposes_calculations_without_loading_experiment_data(self):
         self.assertTrue(callable(stability.jaccard_similarity))
         self.assertTrue(callable(stability.summarize_stability))
@@ -85,6 +160,7 @@ class FeatureStabilityTests(unittest.TestCase):
                 n_repeats=20,
                 test_size=0.25,
                 seed=42,
+                dataset_hash="a" * 64,
             )
             with manifest_path.open(newline="", encoding="utf-8") as manifest_file:
                 rows = list(csv.DictReader(manifest_file))
@@ -121,6 +197,7 @@ class FeatureStabilityTests(unittest.TestCase):
                     labels,
                     altered,
                     n_repeats=2,
+                    dataset_hash="a" * 64,
                 )
 
 

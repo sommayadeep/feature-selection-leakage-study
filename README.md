@@ -104,6 +104,14 @@ The final shared protocol uses the canonical manifest in
 - each patient appears in a test fold five times;
 - identical folds for ID3 and k-NN.
 
+The feature-stability split manifest in
+[`configs/feature_stability_split_manifest.csv`](configs/feature_stability_split_manifest.csv)
+records `dataset_sha256`, the SHA-256 digest of the exact processed CSV bytes
+parsed by the stability experiment. This detects changes to the file, including
+sample or feature ordering, while keeping paths and data values out of the
+manifest. A matching hash identifies bytes; it does not establish dataset
+licensing or provenance.
+
 Primary metrics are Macro-F1 and balanced accuracy. Phase 7 reports
 leaky-minus-safe paired differences, safe k-NN minus safe ID3 differences, and
 MI-minus-ANOVA leakage contrasts. Its percentile bootstrap intervals are
